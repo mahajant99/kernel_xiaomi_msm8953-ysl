@@ -133,6 +133,9 @@
 	qcom,mdss-dsi-v-front-porch = <8>;
 	qcom,mdss-dsi-v-pulse-width = <4>;
 	qcom,esd-check-enabled;
+	qcom,ulps-enabled;
+	qcom,suspend-ulps-enabled;
+	qcom,panel-allow-phy-poweroff;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0a];
 	qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";

@@ -3476,6 +3476,9 @@
 		qcom,mdss-dsi-panel-status-valid-params = <1>;
 		qcom,mdss-dsi-panel-max-error-count = <3>;
 		qcom,mdss-dsi-panel-status-value = <0x9c>;
+		qcom,ulps-enabled;
+		qcom,suspend-ulps-enabled;
+		qcom,panel-allow-phy-poweroff;
 	};
 };
 
