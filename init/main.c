@@ -550,6 +550,9 @@ asmlinkage __visible void __init start_kernel(void)
 	page_alloc_init();
 
 	pr_notice("Kernel command line: %s\n", boot_command_line);
+	/* parameters may set static keys */
+	jump_label_init();
+
         /*modify by shenwenbin for merge 8.1 base 20181228 begin*/
           tp = NULL;
           tp = strstr(boot_command_line, "ili9881c");
@@ -570,7 +573,6 @@ asmlinkage __visible void __init start_kernel(void)
 		fpsensor = 2;
 	}
 
-
 	parse_early_param();
 	after_dashes = parse_args("Booting kernel",
 				  static_command_line, __start___param,
@@ -579,8 +581,6 @@ asmlinkage __visible void __init start_kernel(void)
 	if (!IS_ERR_OR_NULL(after_dashes))
 		parse_args("Setting init args", after_dashes, NULL, 0, -1, -1,
 			   NULL, set_init_arg);
-
-	jump_label_init();
 
 	/*
 	 * These use large bootmem allocations and must precede
