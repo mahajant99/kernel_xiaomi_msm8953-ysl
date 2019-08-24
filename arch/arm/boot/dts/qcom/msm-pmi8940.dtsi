@@ -179,7 +179,7 @@
 			qcom,float-voltage-mv = <4400>;
 			qcom,resume-delta-mv = <50>;
 			qcom,chg-inhibit-fg;
-//			qcom,chg-inhibit-en;
+			qcom,chg-inhibit-en;
 			qcom,rparasitic-uohm = <100000>;
 			qcom,bms-psy-name = "bms";
 			qcom,thermal-mitigation = <2000 1000 800 500 200 0>;
@@ -187,7 +187,7 @@
 			qcom,force-aicl-rerun;
 			qcom,aicl-rerun-period-s = <180>;/*default 180*/
 			qcom,float-voltage-comp = <0x10>;/*add comp to 4.1v*/
-//			qcom,autoadjust-vfloat;
+			qcom,autoadjust-vfloat;
 			qcom,fastchg-current-ma = <2000>;
 			qcom,dc-psy-type = "Mains";
 			qcom,dc-psy-ma = <2000>;
@@ -196,7 +196,7 @@
 			qcom,charge-unknown-battery;
 			/*xiaomi-jeita*/
 			qcom,jeita-temp-hard-limit = <1>;
-//			qcom,fastchg-current-comp = <900>;
+			qcom,fastchg-current-comp = <1200>;
 			qcom,cool-xiaomi-bat-decidegc = <50>;
 			qcom,override-usb-current;
 
@@ -316,7 +316,7 @@
 			qcom,vbat-estimate-diff-mv = <150>;
 			qcom,thermal-coefficients = [C8 86 C1 50 D3 37];/*R=10K B25/85 = 3435*/
 			qcom,cold-hot-jeita-hysteresis = <10 20>;//jeita recharger
-//			qcom,capacity-learning-on;
+			qcom,capacity-learning-on;
 			/*xiaomi-jeita*/
 			qcom,hot-bat-decidegc = <600>;
 			qcom,warm-bat-decidegc = <450>;
