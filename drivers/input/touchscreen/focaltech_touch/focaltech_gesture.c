@@ -124,6 +124,28 @@ static struct attribute *fts_gesture_mode_attrs[] = {
     &dev_attr_fts_gesture_buf.attr,
     NULL,
 };
+/************************************************************************
+ * Name: fts_input_symlink
+ *  Brief:
+ *  Input:
+ * Output:
+ * Return: 0-success or others-error
+***********************************************************************/
+static ssize_t fts_input_symlink(struct i2c_client *client)
+{
+	char *driver_path;
+	int ret = 0;
+ 	driver_path = kzalloc(PATH_MAX, GFP_KERNEL);
+	if (!driver_path) {
+		return -ENOMEM;
+	}
+ 	sprintf(driver_path, "/sys%s",
+			kobject_get_path(&client->dev.kobj, GFP_KERNEL));
+ 	pr_info("%s: driver_path=%s\n", __func__, driver_path);
+	proc_symlink("touchpanel", NULL, driver_path);
+ 	kfree(driver_path);
+ 	return ret;
+}
 
 static struct attribute_group fts_gesture_group = {
     .attrs = fts_gesture_mode_attrs,
@@ -593,6 +615,7 @@ int fts_gesture_init(struct fts_ts_data *ts_data)
     __set_bit(KEY_WAKEUP, input_dev->keybit);
 
     fts_create_gesture_sysfs(client);
+	fts_input_symlink(client);
     fts_gesture_data.mode = ENABLE;
     fts_gesture_data.active = DISABLE;
 
