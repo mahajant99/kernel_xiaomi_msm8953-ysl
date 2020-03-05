@@ -352,7 +352,7 @@ struct device_node *of_batterydata_get_best_profile(
 				break;
 			}
 		} else {
-#endif			
+#endif
 			rc = of_batterydata_read_batt_id_kohm(node,
 							"qcom,batt-id-kohm",
 							&batt_ids);
@@ -374,14 +374,15 @@ struct device_node *of_batterydata_get_best_profile(
 					best_id_kohm = batt_ids.kohm[i];
 				}
 			}
-			#if 0
+#if 0
 		}
 #endif
+		
 	}
 
 	if (best_node == NULL) {
 		pr_err("No battery data found\n");
-		for_each_child_of_node(batterydata_container_node, node) {
+        for_each_child_of_node(batterydata_container_node, node) {
 			rc = of_property_read_string(node, "qcom,battery-type",
 							&battery_type);
 			if (!rc && strcmp(battery_type, "unknown-battery") == 0) {
@@ -391,6 +392,7 @@ struct device_node *of_batterydata_get_best_profile(
 		}
 		if(best_node)
 			pr_err("use unknown battery data\n");
+        
 		return best_node;
 	}
 
