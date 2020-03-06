@@ -528,6 +528,7 @@ static int32_t msm_flash_init(
 			return rc;
 		}
 	}
+	flash_ctrl->func_tbl->camera_flash_off(flash_ctrl, NULL);
 
 	flash_ctrl->flash_state = MSM_CAMERA_FLASH_INIT;
 
