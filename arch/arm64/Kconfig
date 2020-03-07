@@ -802,6 +802,10 @@ config XEN
 	help
 	  Say Y if you want to run Linux in a Virtual Machine on Xen on ARM64.
 
+config YSL
+	bool "Based on Platform msm8917"
+	def_bool ARCH_MSM8917
+
 config OKL4_GUEST
 	bool "OKL4 Hypervisor guest support"
 	depends on ARM64 && OF
