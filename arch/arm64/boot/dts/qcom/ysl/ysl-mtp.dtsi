@@ -172,6 +172,15 @@
 	qcom,battery-data = <&mtp_batterydata>;
 };
 
+&pmi_haptic{
+	qcom,actuator-type = "erm";
+	qcom,vmax-mv = <3000>;
+	/delete-property/qcom,lra-auto-res-mode;
+	/delete-property/qcom,lra-high-z;
+	/delete-property/qcom,lra-res-cal-period;
+	qcom,wave-play-rate-us = <4165>;
+};
+
 &pmi8940_charger {
 	qcom,battery-data = <&mtp_batterydata>;
 	qcom,chg-led-sw-controls;

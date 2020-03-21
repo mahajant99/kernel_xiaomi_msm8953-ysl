@@ -3006,6 +3006,7 @@ static void msm_otg_set_vbus_state(int online)
 		pr_debug("EXTCON: BSV set\n");
 		msm_otg_dbg_log_event(&motg->phy, "EXTCON: BSV SET",
 				motg->inputs, 0);
+				 msleep(1500);
 		if (test_and_set_bit(B_SESS_VLD, &motg->inputs))
 			return;
 	} else {

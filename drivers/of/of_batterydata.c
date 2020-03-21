@@ -342,6 +342,7 @@ struct device_node *of_batterydata_get_best_profile(
 	 * Find the battery data with a battery id resistor closest to this one
 	 */
 	for_each_child_of_node(batterydata_container_node, node) {
+#if 0
 		if (batt_type != NULL) {
 			rc = of_property_read_string(node, "qcom,battery-type",
 							&battery_type);
@@ -351,6 +352,7 @@ struct device_node *of_batterydata_get_best_profile(
 				break;
 			}
 		} else {
+#endif			
 			rc = of_batterydata_read_batt_id_kohm(node,
 							"qcom,batt-id-kohm",
 							&batt_ids);
@@ -372,11 +374,23 @@ struct device_node *of_batterydata_get_best_profile(
 					best_id_kohm = batt_ids.kohm[i];
 				}
 			}
+			#if 0
 		}
+#endif
 	}
 
 	if (best_node == NULL) {
 		pr_err("No battery data found\n");
+		for_each_child_of_node(batterydata_container_node, node) {
+			rc = of_property_read_string(node, "qcom,battery-type",
+							&battery_type);
+			if (!rc && strcmp(battery_type, "unknown-battery") == 0) {
+				best_node = node;
+				break;
+			}
+		}
+		if(best_node)
+			pr_err("use unknown battery data\n");
 		return best_node;
 	}
 
