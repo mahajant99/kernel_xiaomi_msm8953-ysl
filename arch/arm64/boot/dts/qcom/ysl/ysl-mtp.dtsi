@@ -120,13 +120,6 @@
 		focaltech,key-x-coords = <180 350 540>;*/
 	};
 };
-&pmi_haptic{
-	qcom,actuator-type = "erm";
-	/delete-property/qcom,lra-auto-res-mode;
-	/delete-property/qcom,lra-high-z;
-	/delete-property/qcom,lra-res-cal-period;
-	qcom,wave-play-rate-us = <4165>;
-};
 
 &mdss_mdp {
 	qcom,mdss-pref-prim-intf = "dsi";
