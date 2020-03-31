@@ -15,6 +15,7 @@
 #include <linux/printk.h>
 #include <linux/debugfs.h>
 #include <linux/delay.h>
+#include <linux/gpio.h>
 #include <linux/regulator/consumer.h>
 #include <linux/workqueue.h>
 #include <linux/regmap.h>
@@ -32,6 +33,7 @@
 #include "sdm660-cdc-irq.h"
 #include "msm-analog-cdc-regmap.h"
 #include "../wcd-mbhc-v2-api.h"
+#include "../../msm8952.h"
 
 #define DRV_NAME "pmic_analog_codec"
 #define SDM660_CDC_RATES (SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000 |\
@@ -58,7 +60,7 @@
 #define SPK_PMD 2
 #define SPK_PMU 3
 
-#define MICBIAS_DEFAULT_VAL 1800000
+#define MICBIAS_DEFAULT_VAL 2750000
 #define MICBIAS_MIN_VAL 1600000
 #define MICBIAS_STEP_SIZE 50000
 
@@ -91,6 +93,11 @@ static char on_demand_supply_name[][MAX_ON_DEMAND_SUPPLY_NAME_LENGTH] = {
 	"cdc-vdda18-l10",
 	"cdc-vdd-l1",
 };
+
+static int external_spk_control = 1;
+static int external_hs_control = 0;
+
+int smg_in_gpio = 1;
 
 static struct wcd_mbhc_register
 	wcd_mbhc_registers[WCD_MBHC_REG_FUNC_MAX] = {
@@ -200,6 +207,9 @@ static void msm_anlg_cdc_set_auto_zeroing(struct snd_soc_codec *codec,
 static void msm_anlg_cdc_configure_cap(struct snd_soc_codec *codec,
 				       bool micbias1, bool micbias2);
 static bool msm_anlg_cdc_use_mb(struct snd_soc_codec *codec);
+
+extern int msm_spk_ext_pa_ctrl(struct msm_asoc_mach_data *pdatadata, bool value);
+int msm_hs_ext_pa_ctrl(struct msm_asoc_mach_data *pdatadata, bool value);
 
 static int get_codec_version(struct sdm660_cdc_priv *sdm660_cdc)
 {
@@ -1871,6 +1881,60 @@ static int msm_anlg_cdc_ext_spk_boost_set(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+static int get_external_spk_pa(struct snd_kcontrol *kcontrol,
+		       struct snd_ctl_elem_value *ucontrol)
+{
+	pr_debug("At %d In (%s), external_spk_control=%d\n", __LINE__, __FUNCTION__, external_spk_control);
+	ucontrol->value.integer.value[0] = external_spk_control;
+	return 0;
+}
+static int set_external_spk_pa(struct snd_kcontrol *kcontrol,
+		       struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
+	struct msm_asoc_mach_data *pdata = NULL;
+	pdata = snd_soc_card_get_drvdata(codec->component.card);
+	pr_debug("At %d In (%s), external_spk_control=%d, value.integer.value[0]=%ld\n", __LINE__, __FUNCTION__, external_spk_control, ucontrol->value.integer.value[0]);
+	if (external_spk_control == ucontrol->value.integer.value[0])
+		return 0;
+	external_spk_control = ucontrol->value.integer.value[0];
+	msm_spk_ext_pa_ctrl(pdata, external_spk_control);
+	return 1;
+}
+static int get_external_hs_pa(struct snd_kcontrol *kcontrol,
+		       struct snd_ctl_elem_value *ucontrol)
+{
+	pr_debug("At %d In (%s), external_hs_control=%d\n", __LINE__, __FUNCTION__, external_hs_control);
+	ucontrol->value.integer.value[0] = external_hs_control;
+	return 0;
+}
+static int set_external_hs_pa(struct snd_kcontrol *kcontrol,
+		       struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
+	struct msm_asoc_mach_data *pdata = NULL;
+	pdata = snd_soc_card_get_drvdata(codec->component.card);
+	pr_debug("At %d In (%s), external_hs_control=%d, value.integer.value[0]=%ld\n", __LINE__, __FUNCTION__, external_hs_control, ucontrol->value.integer.value[0]);
+	if (external_hs_control == ucontrol->value.integer.value[0])
+		return 0;
+	external_hs_control = ucontrol->value.integer.value[0];
+	msm_hs_ext_pa_ctrl(pdata, external_hs_control);
+	return 1;
+}
+
+static int get_external_hp_analog_switch(struct snd_kcontrol *kcontrol,
+                       struct snd_ctl_elem_value *ucontrol)
+{
+        return 0;
+}
+static int set_external_hp_analog_switch(struct snd_kcontrol *kcontrol,
+                       struct snd_ctl_elem_value *ucontrol)
+{
+	bool hp_analog_control = ucontrol->value.integer.value[0];
+	gpio_set_value(smg_in_gpio, !hp_analog_control);
+	return 0;
+}
+
 static const char * const msm_anlg_cdc_ear_pa_boost_ctrl_text[] = {
 		"DISABLE", "ENABLE"};
 static const struct soc_enum msm_anlg_cdc_ear_pa_boost_ctl_enum[] = {
@@ -1889,6 +1953,24 @@ static const char * const msm_anlg_cdc_boost_option_ctrl_text[] = {
 static const struct soc_enum msm_anlg_cdc_boost_option_ctl_enum[] = {
 		SOC_ENUM_SINGLE_EXT(4, msm_anlg_cdc_boost_option_ctrl_text),
 };
+
+static const char * const msm_external_spk_pa_text[] = {
+		"OFF", "ON"};
+static const struct soc_enum msm_external_spk_pa_enum[] = {
+		SOC_ENUM_SINGLE_EXT(2, msm_external_spk_pa_text),
+};
+static const char * const msm_external_hs_pa_text[] = {
+		"OFF", "ON"};
+static const struct soc_enum msm_external_hs_pa_enum[] = {
+		SOC_ENUM_SINGLE_EXT(2, msm_external_hs_pa_text),
+};
+
+static const char * const msm_external_hp_analog_switch_text[] = {
+                "OFF", "ON"};
+static const struct soc_enum msm_external_hp_analog_switch_enum[] = {
+                SOC_ENUM_SINGLE_EXT(2, msm_external_hp_analog_switch_text),
+};
+
 static const char * const msm_anlg_cdc_spk_boost_ctrl_text[] = {
 		"DISABLE", "ENABLE"};
 static const struct soc_enum msm_anlg_cdc_spk_boost_ctl_enum[] = {
@@ -1927,6 +2009,13 @@ static const struct snd_kcontrol_new msm_anlg_cdc_snd_controls[] = {
 
 	SOC_ENUM_EXT("EAR PA Gain", msm_anlg_cdc_ear_pa_gain_enum[0],
 		msm_anlg_cdc_pa_gain_get, msm_anlg_cdc_pa_gain_put),
+
+	SOC_ENUM_EXT("Speaker PA Open", msm_external_spk_pa_enum[0],
+		get_external_spk_pa, set_external_spk_pa),
+	SOC_ENUM_EXT("HS PA Open", msm_external_hs_pa_enum[0],
+		get_external_hs_pa, set_external_hs_pa),
+	SOC_ENUM_EXT("HP ANALOG SWITCH", msm_external_hp_analog_switch_enum[0],
+                get_external_hp_analog_switch, set_external_hp_analog_switch),
 
 	SOC_ENUM_EXT("Speaker Boost", msm_anlg_cdc_spk_boost_ctl_enum[0],
 		msm_anlg_cdc_spk_boost_get, msm_anlg_cdc_spk_boost_set),
@@ -2100,6 +2189,36 @@ static const struct snd_kcontrol_new lo_mux[] = {
 	SOC_DAPM_ENUM("LINE_OUT", lo_enum)
 };
 
+int msm_hs_ext_pa_ctrl(struct msm_asoc_mach_data *pdatadata, bool value)
+{
+	struct msm_asoc_mach_data *pdata = pdatadata;
+	bool on_off = value;
+	int ret = 0;
+
+	pr_debug("%s, hs_is_on=%d, spk_hs_switch_gpio=%d, on_off=%d\n", __func__, pdata->hs_is_on, pdata->spk_hs_switch_gpio, on_off);
+	if (gpio_is_valid(pdata->spk_hs_switch_gpio))
+	{
+		if (on_off)
+		{
+            gpio_set_value_cansleep(pdata->spk_hs_switch_gpio, false);
+            msleep(3);
+			pr_debug("At %d In (%s), after set, spk_hs_switch_gpio=%d\n", __LINE__, __FUNCTION__, gpio_get_value(pdata->spk_hs_switch_gpio));
+		}
+		else {
+            gpio_set_value_cansleep(pdata->spk_hs_switch_gpio, true);
+            msleep(3);
+			pr_debug("At %d In (%s), after close, spk_hs_switch_gpio=%d\n", __LINE__, __FUNCTION__, gpio_get_value(pdata->spk_hs_switch_gpio));
+		}
+	}
+	else
+	{
+		pr_debug("%s, error\n", __func__);
+		ret = -EINVAL;
+	}
+
+	return ret;
+}
+
 static void msm_anlg_cdc_codec_enable_adc_block(struct snd_soc_codec *codec,
 					 int enable)
 {
@@ -2214,7 +2333,9 @@ static int msm_anlg_cdc_codec_enable_spk_pa(struct snd_soc_dapm_widget *w,
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
 	struct sdm660_cdc_priv *sdm660_cdc =
 					snd_soc_codec_get_drvdata(codec);
-
+	struct msm_asoc_mach_data *pdata = NULL;
+	pdata = snd_soc_card_get_drvdata(codec->component.card);
+	
 	dev_dbg(codec->dev, "%s %d %s\n", __func__, event, w->name);
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -2280,8 +2401,15 @@ static int msm_anlg_cdc_codec_enable_spk_pa(struct snd_soc_dapm_widget *w,
 		msm_anlg_cdc_dig_notifier_call(codec,
 					       DIG_CDC_EVENT_RX3_MUTE_OFF);
 		snd_soc_update_bits(codec, w->reg, 0x80, 0x80);
+		pdata->pa_is_on = 0;
+		pr_debug("At %d In (%s), will run msm_spk_ext_pa_ctrl, true\n", __LINE__, __FUNCTION__);
+		schedule_delayed_work(&pdata->pa_gpio_work, msecs_to_jiffies(40));
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
+		cancel_delayed_work_sync(&pdata->pa_gpio_work);
+		msm_spk_ext_pa_ctrl(pdata, true);
+		pr_debug("At %d In (%s), close pa, spk_ext_pa_gpio_lc=%d\n", __LINE__, __FUNCTION__, gpio_get_value(pdata->spk_ext_pa_gpio_lc));
+		pdata->pa_is_on = 0;
 		msm_anlg_cdc_dig_notifier_call(codec,
 					       DIG_CDC_EVENT_RX3_MUTE_ON);
 		/*
@@ -2704,6 +2832,11 @@ static void wcd_imped_config(struct snd_soc_codec *codec,
 			 __func__);
 		return;
 	}
+	if (value >= wcd_imped_val[ARRAY_SIZE(wcd_imped_val) - 1]) {
+		pr_err("%s, invalid imped, greater than 48 Ohm\n = %d\n",
+			__func__, value);
+		return;
+	}
 
 	codec_version = get_codec_version(sdm660_cdc);
 
@@ -2851,6 +2984,7 @@ static int msm_anlg_cdc_lo_dac_event(struct snd_soc_dapm_widget *w,
 			MSM89XX_PMIC_ANALOG_RX_LO_DAC_CTL, 0x08, 0x08);
 		snd_soc_update_bits(codec,
 			MSM89XX_PMIC_ANALOG_RX_LO_DAC_CTL, 0x40, 0x40);
+		msleep(5);
 		break;
 	case SND_SOC_DAPM_POST_PMU:
 		snd_soc_update_bits(codec,
@@ -3243,7 +3377,8 @@ static int msm_anlg_cdc_codec_enable_lo_pa(struct snd_soc_dapm_widget *w,
 					   int event)
 {
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
-
+	struct msm_asoc_mach_data *pdata = NULL;
+	pdata = snd_soc_card_get_drvdata(codec->component.card);
 	dev_dbg(codec->dev, "%s: %d %s\n", __func__, event, w->name);
 	switch (event) {
 	case SND_SOC_DAPM_POST_PMU:
@@ -3251,6 +3386,10 @@ static int msm_anlg_cdc_codec_enable_lo_pa(struct snd_soc_dapm_widget *w,
 				       DIG_CDC_EVENT_RX3_MUTE_OFF);
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
+		cancel_delayed_work_sync(&pdata->pa_gpio_work);
+		msm_spk_ext_pa_ctrl(pdata, true);
+		pr_debug("At %d In (%s), close pa, spk_ext_pa_gpio_lc=%d\n", __LINE__, __FUNCTION__, gpio_get_value(pdata->spk_ext_pa_gpio_lc));
+		pdata->pa_is_on = 0;
 		msm_anlg_cdc_dig_notifier_call(codec,
 				       DIG_CDC_EVENT_RX3_MUTE_ON);
 		break;
