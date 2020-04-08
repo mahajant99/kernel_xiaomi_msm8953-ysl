@@ -30,7 +30,7 @@ enum FP_MODE{
 #define GF_NAV_INPUT_HEAVY		KEY_CHAT
 #endif
 
-#define GF_KEY_INPUT_HOME		KEY_SELECT
+#define GF_KEY_INPUT_HOME		KEY_HOME
 #define GF_KEY_INPUT_MENU		KEY_MENU
 #define GF_KEY_INPUT_BACK		KEY_BACK
 #define GF_KEY_INPUT_POWER		KEY_POWER
@@ -137,8 +137,6 @@ struct gf_dev {
 	struct notifier_block notifier;
 	char device_available;
 	char fb_black;
-
-
 	char wait_finger_down;
 	struct work_struct work;
 };
@@ -152,7 +150,7 @@ int gf_power_off(struct gf_dev *gf_dev);
 int gf_hw_reset(struct gf_dev *gf_dev, unsigned int delay_ms);
 int gf_irq_num(struct gf_dev *gf_dev);
 
-int sendnlmsg(char *msg);
+void sendnlmsg(char *message);
 int netlink_init(void);
 void netlink_exit(void);
 #endif /*__GF_SPI_H*/

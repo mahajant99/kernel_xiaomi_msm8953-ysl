@@ -1,4 +1,4 @@
-config FINGERPRINT_GOODIX_GF3208
+config GOODIX_FINGERPRINT
 	tristate "generic goodix fingerprint driver"
 	depends on INPUT_FINGERPRINT
 	help
