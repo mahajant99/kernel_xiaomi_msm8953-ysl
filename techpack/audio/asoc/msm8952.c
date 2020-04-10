@@ -390,8 +390,6 @@ int msm_spk_ext_pa_ctrl(struct msm_asoc_mach_data *pdatadata, bool value)
 	struct msm_asoc_mach_data *pdata = pdatadata;
 	bool on_off = !value;
 	int ret = 0;
-
-	#if  defined(CONFIG_SPEAKER_EXT_PA_AW8738)
 	struct sched_param param;
 	int maxpri;
 
@@ -404,7 +402,6 @@ int msm_spk_ext_pa_ctrl(struct msm_asoc_mach_data *pdatadata, bool value)
 		pr_debug("whl sched_setscheduler failed\n");
 	}
 	pr_debug("whl apk pa ctl -> high priorty end\n");
-	#endif
 
 	pr_debug("%s, pa_is_on=%d, spk_ext_pa_gpio_lc=%d, on_off=%d\n", __func__, pdata->pa_is_on, pdata->spk_ext_pa_gpio_lc, on_off);
 	if (gpio_is_valid(pdata->spk_ext_pa_gpio_lc))
