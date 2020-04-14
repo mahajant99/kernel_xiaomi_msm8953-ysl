@@ -165,8 +165,14 @@
 		qcom,ce-opp-freq = <100000000>;
 	};
 	
-	qusb_phy: qusb@79000 {
-		qcom,qusb-phy-init-seq = <0xF8 0x80
+	usb3: ssusb@7000000{
+	    qcom,usbin-vadc = <&pmi8940_vadc>;
+		qcom,detect-dpdm-floating;
+		extcon = <&qpnp_smbcharger>;
+	};	
+
+qusb_phy: qusb@79000 {
+   qcom,qusb-phy-init-seq = <0xF8 0x80
 					0x73 0x84
 					0x83 0x88
 					0xC5 0x8C
@@ -177,7 +183,7 @@
 					0x00 0x90
 					0x9F 0x1C
 					0x00 0x18>;
-	};
+	};				
 	
 	ant_check {
 		compatible = "ant_check";
@@ -242,3 +248,9 @@
 		};
 	};
 };
+
+&pm8953_vadc {
+chan@11 {
+		label = "case_therm";
+		};
+	};	

@@ -55,8 +55,8 @@
 			<0xff 114>, /* qdsd_intr_out */
 			<0xff 126>, /* app_tcu_cxt_irpt_vec[11] */
 			<0xff 128>, /* blsp1_peripheral_irq[3] */
-                        <0xff 129>, /* i2c-msm-v2-irq */			
-                        <0xff 131>, /* qup_irq */
+            <0xff 129>, /* i2c-msm-v2-irq */			
+            <0xff 131>, /* qup_irq */
 			<0xff 136>, /* app_tcu_cxt_irpt_vec[15] */
 			<0xff 137>, /* app_tcu_cxt_irpt_vec[16] */
 			<0xff 138>, /* app_tcu_cxt_irpt_vec[17] */
@@ -243,7 +243,13 @@
 			qcom,float-voltage-mv = <4400>;
 			qcom,resume-delta-mv = <50>;
 			qcom,chg-inhibit-fg;
+			dpdm-supply = <&qusb_phy>;
+			qcom,hvdcp-disable;
+			qcom,micro-usb;
+			
 			/delete-property/qcom,chg-inhibit-en;
+			/delete-property/ qcom,external-typec;
+         	/delete-property/ qcom,typec-psy-name;
 			qcom,rparasitic-uohm = <100000>;
 			qcom,bms-psy-name = "bms";
 			qcom,thermal-mitigation = <2000 1000 800 500 200 0>;
