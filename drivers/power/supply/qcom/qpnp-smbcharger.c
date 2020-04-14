@@ -4208,7 +4208,7 @@ static int smbchg_register_chg_led(struct smbchg_chip *chip)
 {
 	int rc;
 
-	chip->led_cdev.name = "green";
+	chip->led_cdev.name = "red";
 	chip->led_cdev.brightness_set = smbchg_chg_led_brightness_set;
 	chip->led_cdev.brightness_get = smbchg_chg_led_brightness_get;
 
@@ -4662,6 +4662,7 @@ static void xiaomi_jeita_work(struct work_struct *work)
 				struct smbchg_chip,
 				jeita_work.work);
 	int temp;
+	union power_supply_propval prop = {0,};
 	temp = get_prop_batt_temp(chip);
 
 	if(temp > 0 && temp <= chip->cool_xiaomi && !chip->batt_cool_xiaomi){
@@ -4683,7 +4684,12 @@ static void xiaomi_jeita_work(struct work_struct *work)
     else
         vote(chip->fcc_votable, CUST_XIAOMI, false, 0);
 
-
+    if(chip->bms_psy){
+		power_supply_get_property(chip->bms_psy, POWER_SUPPLY_PROP_BATTERY_TYPE, &prop);
+		if(strcmp(prop.strval, "unknown-battery") == 0)
+			vote(chip->fcc_votable, "BATTCHG_UNKNOWN", true, 500);
+	}
+	
 	schedule_delayed_work(&chip->jeita_work,
 			msecs_to_jiffies(JEITA_RESTART_DELAY_MS));
 	return;
