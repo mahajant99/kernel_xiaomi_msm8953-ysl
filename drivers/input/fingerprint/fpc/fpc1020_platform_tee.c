@@ -57,6 +57,7 @@
 #define NUM_PARAMS_REG_ENABLE_SET 2
 #define PROC_NAME  "hwinfo"
 static struct proc_dir_entry *proc_entry;
+extern int fpsensor;
 
 static const char * const pctl_names[] = {
 	"fpc1020_reset_reset",
@@ -607,6 +608,10 @@ static int fpc1020_probe(struct platform_device *pdev)
 		rc = -ENOMEM;
 		goto exit;
 	}
+	if(fpsensor != 1) {
+                 pr_err("hml fpc1020_probe failed as fpsensor = %d(1=fpc)\n", fpsensor);
+                 return -1;
+    }
 
 	fpc1020->dev = dev;
 	platform_set_drvdata(pdev, fpc1020);
