@@ -227,7 +227,13 @@ qusb_phy: qusb@79000 {
 		vcc_spi-supply = <&pm8953_l6>;
 		vdd_io-supply = <&pm8953_l6>;
 		vdd_ana-supply = <&pm8953_l6>;
+		pinctrl-0 = <&goodix_reset_active &goodix_irq_active>;
+		pinctrl-1 = <&goodix_reset_sleep &goodix_irq_sleep>;
+		clock-names = "iface_clk", "core_clk";
 
+		clocks = <&clock_gcc clk_gcc_blsp1_ahb_clk>,
+		<&clock_gcc clk_gcc_blsp1_qup1_spi_apps_clk>;
+        
 	};
 };
 &spmi_bus {

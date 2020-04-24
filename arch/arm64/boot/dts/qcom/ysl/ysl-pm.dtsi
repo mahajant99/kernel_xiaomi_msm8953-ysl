@@ -256,8 +256,7 @@
 			qcom,pmic-revid = <&pmi8940_revid>;
 			qcom,force-aicl-rerun;
 			qcom,aicl-rerun-period-s = <180>;/*default 180*/
-			qcom,float-voltage-comp = <0x10>;/*add comp to 4.1v*/
-			/delete-property/qcom,autoadjust-vfloat;
+			qcom,autoadjust-vfloat;
 			qcom,fastchg-current-ma = <2000>;
 			qcom,dc-psy-type = "Mains";
 			qcom,dc-psy-ma = <2000>;
@@ -302,7 +301,7 @@
          qcom,pmi8940@3 {		
 		  wled: qcom,leds@d800 {
 			qcom,led-strings-list = [00 01 02];
-			qcom,en-cabc;	  
+			qcom,en-cabc;
 		};
       };
 	};	

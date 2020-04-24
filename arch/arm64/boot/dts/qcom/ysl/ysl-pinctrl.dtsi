@@ -264,6 +264,131 @@ pmx_ts_int_active {
 				};
 			};
 		};
+		
+	msm_gpio_140:msm_gpio_140 {
+			mux{
+				pins="gpio140";
+				function= "gpio";
+			};
+			config {
+				pins= "gpio140";
+				drive-strength = <2>;
+				bias-disable;
+				output-low;
+
+			};
+		};
+
+		msm_gpio_140_output_high:msm_gpio_140output_high {
+			mux {
+				pins = "gpio140";
+				function = "gpio";
+
+			};
+			config{
+				pins = "gpio140";
+				drive-strength = <2>;
+				bias-disable;
+				output-high;
+			};
+
+		};
+
+		msm_gpio_48:msm_gpio_48{
+			mux{
+				pins = "gpio48";
+				function = "gpio";
+			};
+			config{
+				pins = "gpio48";
+				drive-strength=<2>;
+				bias-pull-down;
+			};
+		};
+
+		goodix_pwr {
+			goodix_pwr_active: goodix_pwr_active {
+				mux {
+					pins = "gpio47";
+					function = "gpio";
+				};
+
+				config {
+					pins = "gpio47";
+					drive-strength = <6>;
+					bias-pull-up;
+				};
+			};
+
+			goodix_pwr_sleep: goodix_pwr_sleep {
+				mux {
+					pins = "gpio47";
+					function = "gpio";
+				};
+
+				config {
+					pins = "gpio47";
+					drive-strength = <6>;
+					bias-pull-up;
+				};
+			};
+		};
+
+		goodix_reset {
+			goodix_reset_active: goodix_reset_active {
+				mux {
+					pins = "gpio140";
+					function = "gpio";
+				};
+
+				config {
+					pins = "gpio140";
+					drive-strength = <6>;
+					bias-pull-up;
+				};
+			};
+
+			goodix_reset_sleep: goodix_reset_sleep {
+				mux {
+					pins = "gpio140";
+					function = "gpio";
+				};
+
+				config {
+					pins = "gpio140";
+					drive-strength = <6>;
+					bias-pull-up;
+				};
+			};
+		};
+
+		goodix_irq {
+			goodix_irq_active: goodix_irq_active {
+				mux {
+					pins = "gpio48";
+					function = "gpio";
+				};
+
+				config {
+					pins = "gpio48";
+					drive-strength = <6>;
+					bias-disable;
+				};
+			};
+
+			goodix_irq_sleep: goodix_irq_sleep {
+				mux {
+					pins = "gpio48";
+					function = "gpio";
+				};
+
+				config {
+					pins = "gpio48";
+					drive-strength = <6>;
+					bias-disable;
+				};
+			};
+		};	
 // add by wangyibo for sar ant detect by wangyibo at 20190108 start
 
 // modify by zhoudan for merge 8.1 base 20181228 begin
