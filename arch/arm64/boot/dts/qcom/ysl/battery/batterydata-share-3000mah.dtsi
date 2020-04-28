@@ -1,6 +1,7 @@
 qcom,share-3000mah {
     /* share shenwei 18.1.8*/
     qcom,max-voltage-uv = <4400000>;
+	qcom,fastchg-current-ma = <3500>;
     qcom,nom-batt-capacity-mah = <3080>;
     qcom,batt-id-kohm = <666>;
     qcom,battery-beta = <3435>;

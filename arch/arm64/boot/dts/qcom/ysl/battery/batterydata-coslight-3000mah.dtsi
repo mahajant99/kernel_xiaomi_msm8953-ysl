@@ -1,6 +1,7 @@
 qcom,coslight-3000mah {
     /* #3213692_Longcheer_BN31cos_3080mAh_averaged_MasterSlave_Dec13th2017*/
     qcom,max-voltage-uv = <4400000>;
+	qcom,fastchg-current-ma = <3500>;
     qcom,nom-batt-capacity-mah = <3080>;
     qcom,batt-id-kohm = <100>;
     qcom,battery-beta = <3435>;

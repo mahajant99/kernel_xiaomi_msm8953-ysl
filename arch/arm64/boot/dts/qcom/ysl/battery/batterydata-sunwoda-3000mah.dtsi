@@ -1,5 +1,6 @@
 qcom,sunwoda-3000mah {
 	qcom,max-voltage-uv = <4400000>;
+	qcom,fastchg-current-ma = <3500>;
 	qcom,nom-batt-capacity-mah = <3080>;
 	qcom,batt-id-kohm = <330>;
 	qcom,battery-beta = <3380>;
