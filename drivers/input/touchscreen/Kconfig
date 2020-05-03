@@ -1437,12 +1437,12 @@ config TOUCHSCREEN_FT5446
 
 source "drivers/input/touchscreen/ft5446/Kconfig"
 
-config TOUCHSCREEN_GT9XX
+config TOUCHSCREEN_GT917D
        tristate "Goodix touchscreens"
        depends on I2C
        help
-         Say Y here if you have a GT9xx touchscreen.
-         GT9xx controllers are multi touch controllers which can
+         Say Y here if you have a GT917D touchscreen.
+         GT917D controllers are multi touch controllers which can
          report 10 touches at a time.
 
          If unsure, say N.
@@ -1450,7 +1450,7 @@ config TOUCHSCREEN_GT9XX
          To compile this driver as a module, choose M here: the
          module will be called GT9xx.
 
-source "drivers/input/touchscreen/gt9xx/Kconfig"
+source "drivers/input/touchscreen/gt917d/Kconfig"
 
 config VITURALSAR
 	bool "Vitural Sar series"

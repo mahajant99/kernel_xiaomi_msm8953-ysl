@@ -45,10 +45,6 @@
 * Global variable or extern global variabls/functions
 *****************************************************************************/
 
-#ifdef SUPPORT_READ_TP_VERSION
-		char fw_version[64];
-		u8 regvalue = 0;
-#endif
 
 /* Upgrade FW/PRAMBOOT/LCD CFG */
 u8 fw_file[] = {
@@ -1568,13 +1564,7 @@ int fts_fwupg_upgrade(struct i2c_client *client, struct fts_upgrade *upg)
 				} else {
 					fts_fwupg_get_ver_in_tp(client, &ver);
 					FTS_INFO("success upgrade to fw version %02x", ver);
-					
-					#ifdef SUPPORT_READ_TP_VERSION
-					fts_i2c_read_reg(client, FTS_REG_FW_VER, &regvalue);
-					memset(fw_version, 0, sizeof(fw_version));
-					sprintf(fw_version, "[FW]0x%02x,[IC]FT5446", regvalue);
-					init_tp_fm_info(0, fw_version, "O-film");
-					#endif
+
 					
 					break;
 				}
