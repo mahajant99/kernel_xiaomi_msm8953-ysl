@@ -300,7 +300,6 @@
 		};
          qcom,pmi8940@3 {		
 		  wled: qcom,leds@d800 {
-			qcom,led-strings-list = [00 01 02];
 			qcom,en-cabc;
 		};
       };
