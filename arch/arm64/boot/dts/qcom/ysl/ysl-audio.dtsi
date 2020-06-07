@@ -55,6 +55,10 @@
 		"AMIC2", "MIC BIAS External2",
 		"AMIC3", "MIC BIAS External";
 	};
+	audio_amplifier {
+		compatible = "aw,aw8738";
+		ext-spk-amp-gpio = <&tlmm 139 0x0>;
+	};
 };
 
 /* msm8953-audio */
