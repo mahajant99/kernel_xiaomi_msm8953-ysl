@@ -125,20 +125,17 @@ void wg_packet_send_handshake_cookie(struct wg_device *wg,
 static void keep_key_fresh(struct wg_peer *peer)
 {
 	struct noise_keypair *keypair;
-	bool send = false;
+	bool send;
 
 	rcu_read_lock_bh();
 	keypair = rcu_dereference_bh(peer->keypairs.current_keypair);
-	if (likely(keypair && READ_ONCE(keypair->sending.is_valid)) &&
-	    (unlikely(atomic64_read(&keypair->sending_counter) >
-		      REKEY_AFTER_MESSAGES) ||
-	     (keypair->i_am_the_initiator &&
-	      unlikely(wg_birthdate_has_expired(keypair->sending.birthdate,
-						REKEY_AFTER_TIME)))))
-		send = true;
+	send = keypair && READ_ONCE(keypair->sending.is_valid) &&
+	       (atomic64_read(&keypair->sending_counter) > REKEY_AFTER_MESSAGES ||
+		(keypair->i_am_the_initiator &&
+		 wg_birthdate_has_expired(keypair->sending.birthdate, REKEY_AFTER_TIME)));
 	rcu_read_unlock_bh();
 
-	if (send)
+	if (unlikely(send))
 		wg_packet_send_queued_handshake_initiation(peer, false);
 }
 
@@ -147,7 +144,7 @@ static unsigned int calculate_skb_padding(struct sk_buff *skb)
 	unsigned int padded_size, last_unit = skb->len;
 
 	if (unlikely(!PACKET_CB(skb)->mtu))
-		return -last_unit % MESSAGE_PADDING_MULTIPLE;
+		return ALIGN(last_unit, MESSAGE_PADDING_MULTIPLE) - last_unit;
 
 	/* We do this modulo business with the MTU, just in case the networking
 	 * layer gives us a packet that's bigger than the MTU. In that case, we
@@ -289,6 +286,8 @@ void wg_packet_tx_worker(struct work_struct *work)
 
 		wg_noise_keypair_put(keypair, false);
 		wg_peer_put(peer);
+		if (need_resched())
+			cond_resched();
 	}
 }
 

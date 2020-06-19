@@ -66,7 +66,7 @@ struct packet_cb {
 #define PACKET_PEER(skb) (PACKET_CB(skb)->keypair->entry.peer)
 
 /* Returns either the correct skb->protocol value, or 0 if invalid. */
-static inline __be16 wg_skb_examine_untrusted_ip_hdr(struct sk_buff *skb)
+static inline __be16 wg_examine_packet_protocol(struct sk_buff *skb)
 {
 	if (skb_network_header(skb) >= skb->head &&
 	    (skb_network_header(skb) + sizeof(struct iphdr)) <=
@@ -81,10 +81,15 @@ static inline __be16 wg_skb_examine_untrusted_ip_hdr(struct sk_buff *skb)
 	return 0;
 }
 
+static inline bool wg_check_packet_protocol(struct sk_buff *skb)
+{
+	__be16 real_protocol = wg_examine_packet_protocol(skb);
+	return real_protocol && skb->protocol == real_protocol;
+}
+
 static inline void wg_reset_packet(struct sk_buff *skb, bool encapsulating)
 {
 	const int pfmemalloc = skb->pfmemalloc;
-
 	u32 hash = skb->hash;
 	u8 l4_hash = skb->l4_hash;
 	u8 sw_hash = skb->sw_hash;
@@ -106,8 +111,8 @@ static inline void wg_reset_packet(struct sk_buff *skb, bool encapsulating)
 	skb->dev = NULL;
 #ifdef CONFIG_NET_SCHED
 	skb->tc_index = 0;
-	skb_reset_tc(skb);
 #endif
+	skb_reset_redirect(skb);
 	skb->hdr_len = skb_headroom(skb);
 	skb_reset_mac_header(skb);
 	skb_reset_network_header(skb);
