@@ -103,6 +103,7 @@ static struct led_classdev msm_torch_led[MAX_LED_TRIGGERS] = {
 	},
 };
 
+static int msm_torch_led_num;
 static int32_t msm_torch_create_classdev(struct platform_device *pdev,
 				void *data)
 {
@@ -121,16 +122,17 @@ static int32_t msm_torch_create_classdev(struct platform_device *pdev,
 			torch_trigger = fctrl->torch_trigger[i];
 			CDBG("%s:%d msm_torch_brightness_set for torch %d",
 				__func__, __LINE__, i);
-			msm_torch_brightness_set(&msm_torch_led[i],
+		   msm_torch_brightness_set(&msm_torch_led[msm_torch_led_num + i],
 				LED_OFF);
 
 			rc = led_classdev_register(&pdev->dev,
-				&msm_torch_led[i]);
+				&msm_torch_led[msm_torch_led_num + i]);
 			if (rc) {
 				pr_err("Failed to register %d led dev. rc = %d\n",
 						i, rc);
 				return rc;
 			}
+		msm_torch_led_num++;
 		} else {
 			pr_err("Invalid fctrl->torch_trigger[%d]\n", i);
 			return -EINVAL;
@@ -513,6 +515,7 @@ static int32_t msm_flash_init(
 			return rc;
 		}
 	}
+	flash_ctrl->func_tbl->camera_flash_off(flash_ctrl, NULL);
 
 	flash_ctrl->flash_state = MSM_CAMERA_FLASH_INIT;
 
@@ -605,9 +608,7 @@ static int32_t msm_flash_low(
 				pr_debug("LED current clamped to %d\n",
 					curr);
 			}
-			CDBG("low_flash_current[%d] = %d", i, curr);
-			led_trigger_event(flash_ctrl->torch_trigger[i],
-				curr);
+			led_trigger_event(flash_ctrl->torch_trigger[i], curr);
 		}
 	}
 	if (flash_ctrl->switch_trigger)
@@ -675,8 +676,6 @@ static int32_t msm_flash_config(struct msm_flash_ctrl_t *flash_ctrl,
 		(struct msm_flash_cfg_data_t *) argp;
 
 	mutex_lock(flash_ctrl->flash_mutex);
-
-	CDBG("Enter %s type %d\n", __func__, flash_data->cfg_type);
 
 	switch (flash_data->cfg_type) {
 	case CFG_FLASH_INIT:
